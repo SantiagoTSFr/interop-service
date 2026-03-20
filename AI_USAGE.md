@@ -22,7 +22,7 @@
 **What the agent did:** Picked up exactly where it left off (SearchIndexService → IngestService → controllers → AppStartupRunner → JacksonConfig → tests → docs).
 
 
-### Prompt 3 — Continue generation
+### Prompt 3 — FS handling changes
 > "Please give me an atomic approach to handle FS for checkpoint service."
 
 **What the agent did:** attern used everywhere
