@@ -151,7 +151,7 @@ public class SearchIndexService {
     }
 
     private double cosineSimilarity(Map<String, Double> a, Map<String, Double> b) {
-        // Both vectors are already L2-normalised, so dot product = cosine similarity
+        // Both vectors are already L2-normalized, so dot product = cosine similarity
         double dot = 0.0;
         for (Map.Entry<String, Double> e : a.entrySet()) {
             Double bVal = b.get(e.getKey());
