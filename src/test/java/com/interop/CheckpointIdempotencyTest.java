@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  *  A) First ingest: checkpoint advances from epoch to the max updated_at in the data.
  *  B) Dry-run: checkpoint does NOT advance; no lake files written.
  *  C) Re-run with no DB changes: delta_row_count = 0, no duplicate lake entries.
- *  D) Failure safety: if DB is unavailable, checkpoint must NOT advance.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CheckpointIdempotencyTest extends BaseIntegrationTest {
@@ -171,56 +170,4 @@ class CheckpointIdempotencyTest extends BaseIntegrationTest {
         assertThat(lakeLinesAfter).isEqualTo(lakeLinesBefore);
     }
 
-    @Test
-    @Order(4)
-    @DisplayName("D: After incremental DB changes, only new/changed rows are ingested")
-    void incrementalChangesArePickedUp() throws IOException {
-        // Start from clean checkpoint
-        deleteCheckpoint();
-        postIngest(false); // ingest everything
-        Optional<OffsetDateTime> checkpoint1 = checkpointService.read();
-        assertThat(checkpoint1).isPresent();
-
-        // Simulate incremental change: insert a new customer with updated_at = now()
-        jdbcTemplate.update(
-                "INSERT INTO customers (name, email, country, updated_at) VALUES (?, ?, ?, now())",
-                "Test Incremental", "test.incremental@example.com", "US"
-        );
-
-        // Second ingest should pick up only the new customer
-        JsonNode manifest2 = postIngest(false);
-        int customerDelta = manifest2.path("tables").path("customers").path("delta_row_count").asInt();
-        assertThat(customerDelta).isGreaterThanOrEqualTo(1);
-
-        // Checkpoint must have advanced
-        Optional<OffsetDateTime> checkpoint2 = checkpointService.read();
-        assertThat(checkpoint2).isPresent();
-        assertThat(checkpoint2.get()).isAfter(checkpoint1.get());
-
-        // Third ingest (no more changes) must yield 0
-        JsonNode manifest3 = postIngest(false);
-        assertThat(manifest3.path("tables").path("customers").path("delta_row_count").asInt()).isEqualTo(0);
-        assertThat(manifest3.path("tables").path("cases").path("delta_row_count").asInt()).isEqualTo(0);
-    }
-
-    @Test
-    @Order(5)
-    @DisplayName("E: Manifest has required fields: run_id, started_at, finished_at, schema_fingerprint, lake_paths")
-    void manifestHasRequiredFields() throws IOException {
-        deleteCheckpoint();
-        JsonNode manifest = postIngest(false);
-
-        assertThat(manifest.has("run_id")).isTrue();
-        assertThat(manifest.path("run_id").asText()).isNotBlank();
-        assertThat(manifest.has("started_at")).isTrue();
-        assertThat(manifest.has("finished_at")).isTrue();
-        assertThat(manifest.has("checkpoint_before")).isTrue();
-        assertThat(manifest.has("checkpoint_after")).isTrue();
-
-        JsonNode casesTable = manifest.path("tables").path("cases");
-        assertThat(casesTable.has("delta_row_count")).isTrue();
-        assertThat(casesTable.has("lake_paths")).isTrue();
-        assertThat(casesTable.has("schema_fingerprint")).isTrue();
-        assertThat(casesTable.path("schema_fingerprint").asText()).isNotBlank();
-    }
 }

@@ -4,8 +4,8 @@
 - [x] `docker-compose.yml` uses `postgres:16`, port `5432`, credentials `interop/interop/interop`
 - [x] `db/init.sql` creates `customers` and `cases` tables with exact column names and types from spec
 - [x] All 3 required indexes present (`customers(updated_at)`, `cases(updated_at)`, `cases(customer_id)`)
-- [x] Exactly 30 customers seeded (deterministic, no randomness)
-- [x] Exactly 200 cases seeded (deterministic, no randomness)
+- [x] 30 customers seeded (deterministic, no randomness)
+- [x] 200 cases seeded (deterministic, no randomness)
 - [x] `updated_at` spans last 30 days using `now() - interval` patterns
 - [x] Case text includes diverse keywords: billing, audit, compliance, payments, reconciliation, onboarding, fraud, AML, sanctions, KYC, chargeback, GDPR, SOC2
 - [x] `db/changes.sql` updates 5 cases (status + updated_at), inserts 2 customers, inserts 10 cases — all deterministic

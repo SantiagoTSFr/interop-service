@@ -58,9 +58,9 @@ class SearchDeterminismTest extends BaseIntegrationTest {
         StringBuilder sb = new StringBuilder();
         for (JsonNode r : response.path("results")) {
             sb.append(r.path("case_id").asText())
-              .append(":")
-              .append(r.path("score").asText())
-              .append(",");
+                    .append(":")
+                    .append(r.path("score").asText())
+                    .append(",");
         }
         return sb.toString();
     }
@@ -164,8 +164,8 @@ class SearchDeterminismTest extends BaseIntegrationTest {
 
         // Reload the index for subsequent tests
         List<Case> cases = List.of(
-            new Case(999L, 1L, "Test fraud case", "Fraud detection test description billing reconciliation", "open",
-                     OffsetDateTime.now(ZoneOffset.UTC))
+                new Case(999L, 1L, "Test fraud case", "Fraud detection test description billing reconciliation", "open",
+                        OffsetDateTime.now(ZoneOffset.UTC))
         );
         searchIndex.rebuild(cases);
         assertThat(searchIndex.size()).isEqualTo(1);
@@ -204,11 +204,11 @@ class SearchDeterminismTest extends BaseIntegrationTest {
     void searchIsDeterministicAcrossOrderings() {
         // Run multiple distinct queries, then re-run them in reverse and check same answers
         String[] queries = {
-            "AML transaction monitoring",
-            "billing invoice dispute",
-            "fraud chargeback",
-            "onboarding KYC",
-            "reconciliation mismatch"
+                "AML transaction monitoring",
+                "billing invoice dispute",
+                "fraud chargeback",
+                "onboarding KYC",
+                "reconciliation mismatch"
         };
 
         String[] forward = new String[queries.length];
@@ -223,8 +223,8 @@ class SearchDeterminismTest extends BaseIntegrationTest {
 
         for (int i = 0; i < queries.length; i++) {
             assertThat(backward[i])
-                .as("Query '%s' result must be identical regardless of call order", queries[i])
-                .isEqualTo(forward[i]);
+                    .as("Query '%s' result must be identical regardless of call order", queries[i])
+                    .isEqualTo(forward[i]);
         }
     }
 }
