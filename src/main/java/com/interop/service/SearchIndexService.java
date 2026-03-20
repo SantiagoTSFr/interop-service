@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * Determinism guarantees:
  *  - Tokenisation is pure string ops (lowercase + split on non-alpha).
  *  - Term weights use MurmurHash3-inspired 32-bit mixing (no randomness).
- *  - Scoring is cosine-similarity equivalent computed via dot-product of normalised term vectors.
+ *  - Scoring is cosine-similarity equivalent computed via dot-product of normalized term vectors.
  *  - Same query + same data => identical ordered top_k results every time.
  *
  * Index is rebuilt/refreshed after every successful /ingest call.
@@ -70,7 +70,8 @@ public class SearchIndexService {
         }
 
         // Score every document
-        List<SearchModels.SearchResult> scored = index.values().stream()
+
+        return index.values().stream()
                 .map(entry -> {
                     double score = cosineSimilarity(queryVector, entry.termVector());
                     return new SearchModels.SearchResult(entry.caseId(), round6(score), entry.title(), entry.status());
@@ -81,8 +82,6 @@ public class SearchIndexService {
                         .thenComparingLong(SearchModels.SearchResult::caseId))  // tie-break for determinism
                 .limit(topK)
                 .collect(Collectors.toList());
-
-        return scored;
     }
 
     // ---------------------------------------------------------------
