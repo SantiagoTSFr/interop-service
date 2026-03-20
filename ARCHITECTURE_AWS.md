@@ -64,13 +64,8 @@
 | Compute             | ECS | No server management; scales to 5K tenants; IAM task roles (least privilege) |
 | API                 | API Gateway + ECS | WAF, throttling, mTLS termination; 99.9% SLA covered by managed services |
 
-## Freshness SLA: 10-Minute p95
 
-Change data capture → MSK → Lake Writer → S3 target: **~2–4 min** at peak throughput.  
-Change data capture → MSK → Indexer → OpenSearch target: **~3–6 min** including embedding.  
-Both are well within the 10-minute p95 SLA with headroom for retries.
-
-## NFRs: How They Are Met
+## NFRs: How they are met
 
 - **Reliability 99.9%**: Multi-AZ Aurora + ECS multi-AZ; API Gateway SLA 99.95%; DynamoDB SLA 99.999%.
 - **RPO ≤ 5 min**: MSK 7-day retention as replay buffer; DMS replicates changes in near-real-time.
