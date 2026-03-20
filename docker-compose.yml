@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: interop-postgres
+    environment:
+      POSTGRES_DB: interop
+      POSTGRES_USER: interop
+      POSTGRES_PASSWORD: interop
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01_init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U interop -d interop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
